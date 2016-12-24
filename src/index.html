@@ -1,185 +1,158 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <title>Cardboard Example</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-    <style>
-      body {
-        margin: 0px;
-        overflow: hidden;
-      }
-      #example {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="example"></div>
+<html>
+    <head>
+        <title>three.js css3d - panorama - deviceorientation</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+        <style>
+            body {
+                background-color: #000000;
+                margin: 0;
+                cursor: move;
+                overflow: hidden;
+            }
+            a {
+                color: #ffffff;
+            }
+            #info {
+                position: absolute;
+                width: 100%;
+                color: #ffffff;
+                padding: 5px;
+                font-family: Monospace;
+                font-size: 13px;
+                font-weight: bold;
+                text-align: center;
+                z-index: 1;
+            }
+        </style>
+    </head>
+    <body>
+<!--         // <script src="../build/three.js"></script>
+        // <script src="js/controls/DeviceOrientationControls.js"></script>
+        // <script src="js/renderers/CSS3DRenderer.js"></script> -->
 
-  <script src="js/third-party/threejs/three.js"></script>
-  <script src="js/third-party/threejs/StereoEffect.js"></script>
-  <script src="js/third-party/threejs/DeviceOrientationControls.js"></script>
-  <script src="js/third-party/threejs/OrbitControls.js"></script>
+        
+        <script src="js/third-party/threejs/three.js"></script>
+        <script src="js/third-party/threejs/DeviceOrientationControls.js"></script>
+        <script src="js/third-party/threejs/CSS3DRenderer.js"></script>
+        <script src="js/third-party/threejs/OrbitControls.js"></script>
 
-  <script>
-    var camera, scene, renderer;
-    var effect, controls;
-    var element, container;
+        <!-- <div id="info"><a href="http://threejs.org" target="_blank">three.js css3d</a> - panorama - decideorientation. cubemap by <a href="http://www.humus.name/index.php?page=Textures" target="_blank">Humus</a>.</div> -->
 
-    var clock = new THREE.Clock();
+        <script>
+            var camera, scene, renderer;
+            var geometry, material, mesh;
+            init();
+            animate();
 
-    init();
-    animate();
+            function init() {
+                camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1000 );
 
-    function init() {
-      renderer = new THREE.WebGLRenderer();
-      element = renderer.domElement;
-      container = document.getElementById('example');
-      container.appendChild(element);
+                controls = new THREE.OrbitControls(camera, element);
+                controls.rotateUp(Math.PI / 4);
+                controls.target.set(
+                    camera.position.x + 0.1,
+                    camera.position.y,
+                    camera.position.z
+                );
+                controls.noZoom = true;
+                controls.noPan = true;
 
-      // effect = new THREE.StereoEffect(renderer);
+                function setOrientationControls(e) {
+                    if (!e.alpha) {
+                         return;
+                    }
 
-      scene = new THREE.Scene();
+                    controls = new THREE.DeviceOrientationControls(camera, true);
+                    controls.connect();
+                    controls.update();
 
-      
-      camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.1, 100 );
-      camera.position.z = 0.01;
-      // camera = new THREE.PerspectiveCamera(90, 1, 0.001, 700);
-      // camera.position.set(0, 10, 0);
-      scene.add(camera);
+                    element.addEventListener('click', fullscreen, false);
 
-      controls = new THREE.OrbitControls(camera, element);
-      controls.rotateUp(Math.PI / 4);
-      controls.target.set(
-        camera.position.x + 0.1,
-        camera.position.y,
-        camera.position.z
-      );
-      controls.noZoom = true;
-      controls.noPan = true;
+                    window.removeEventListener('deviceorientation', setOrientationControls, true);
+              }
 
-      function setOrientationControls(e) {
-        if (!e.alpha) {
-          return;
-        }
+              window.addEventListener('deviceorientation', setOrientationControls, true);
+                
+                scene = new THREE.Scene();
+                var sides = [
+                    {
+                        url: 'textures/cube/Bridge2/posx.jpg',
+                        position: [ -512, 0, 0 ],
+                        rotation: [ 0, Math.PI / 2, 0 ]
+                    },
+                    {
+                        url: 'textures/cube/Bridge2/negx.jpg',
+                        position: [ 512, 0, 0 ],
+                        rotation: [ 0, -Math.PI / 2, 0 ]
+                    },
+                    {
+                        url: 'textures/cube/Bridge2/posy.jpg',
+                        position: [ 0,  512, 0 ],
+                        rotation: [ Math.PI / 2, 0, Math.PI ]
+                    },
+                    {
+                        url: 'textures/cube/Bridge2/negy.jpg',
+                        position: [ 0, -512, 0 ],
+                        rotation: [ - Math.PI / 2, 0, Math.PI ]
+                    },
+                    {
+                        url: 'textures/cube/Bridge2/posz.jpg',
+                        position: [ 0, 0,  512 ],
+                        rotation: [ 0, Math.PI, 0 ]
+                    },
+                    {
+                        url: 'textures/cube/Bridge2/negz.jpg',
+                        position: [ 0, 0, -512 ],
+                        rotation: [ 0, 0, 0 ]
+                    }
+                ];
+                var cube = new THREE.Object3D();
+                scene.add( cube );
+                for ( var i = 0; i < sides.length; i ++ ) {
+                    var side = sides[ i ];
+                    var element = document.createElement( 'img' );
+                    element.width = 1026; // 2 pixels extra to close the gap.
+                    element.src = side.url;
+                    var object = new THREE.CSS3DObject( element );
+                    object.position.fromArray( side.position );
+                    object.rotation.fromArray( side.rotation );
+                    cube.add( object );
+                }
 
-        controls = new THREE.DeviceOrientationControls(camera, true);
-        controls.connect();
-        controls.update();
+                var div = document.createElement( 'div' );
+                div.style.width = '80px';
+                div.style.height = '60px';
+                div.style.backgroundColor = '#FFF';
 
-        element.addEventListener('click', fullscreen, false);
+                var menu = new THREE.CSS3DObject( div );
+                menu.position.set( 0, -200, 0 );
+                menu.rotation.set( - Math.PI / 2, 0, Math.PI );
+                scene.add( menu );
 
-        window.removeEventListener('deviceorientation', setOrientationControls, true);
-      }
-      window.addEventListener('deviceorientation', setOrientationControls, true);
 
-
-      var light = new THREE.HemisphereLight(0x777777, 0x000000, 0.6);
-      scene.add(light);
-
-      // var texture = THREE.ImageUtils.loadTexture(
-      //   'textures/patterns/checker.png'
-      // );
-      // texture.wrapS = THREE.RepeatWrapping;
-      // texture.wrapT = THREE.RepeatWrapping;
-      // texture.repeat = new THREE.Vector2(50, 50);
-      // texture.anisotropy = renderer.getMaxAnisotropy();
-
-      // var material = new THREE.MeshPhongMaterial({
-      //   color: 0xffffff,
-      //   specular: 0xffffff,
-      //   shininess: 20,
-      //   shading: THREE.FlatShading,
-      //   map: texture
-      // });
-
-      // var geometry = new THREE.PlaneGeometry(1000, 1000);
-
-      // var mesh = new THREE.Mesh(geometry, material);
-      // mesh.rotation.x = -Math.PI / 2;
-      // scene.add(mesh);
-
-      var textures = getTexturesFromAtlasFile( "textures/cube/sun_temple_stripe.jpg", 6 );
-      var materials = [];
-      for ( var i = 0; i < 6; i ++ ) {
-        materials.push( new THREE.MeshBasicMaterial( { map: textures[ i ] } ) );
-      }
-      var skyBox = new THREE.Mesh( new THREE.BoxGeometry( 1, 1, 1 ), new THREE.MeshFaceMaterial( materials ) );
-      skyBox.applyMatrix( new THREE.Matrix4().makeScale( 1, 1, - 1 ) );
-      scene.add( skyBox );
-
-      window.addEventListener('resize', resize, false);
-      setTimeout(resize, 1);
-    }
-
-    function getTexturesFromAtlasFile( atlasImgUrl, tilesNum ) {
-      var textures = [];
-      for ( var i = 0; i < tilesNum; i ++ ) {
-          textures[ i ] = new THREE.Texture();
-      }
-      var imageObj = new Image();
-      imageObj.onload = function() {
-          var canvas, context;
-          var tileWidth = imageObj.height;
-          for ( var i = 0; i < textures.length; i ++ ) {
-              canvas = document.createElement( 'canvas' );
-              context = canvas.getContext( '2d' );
-              canvas.height = tileWidth;
-              canvas.width = tileWidth;
-              context.drawImage( imageObj, tileWidth * i, 0, tileWidth, tileWidth, 0, 0, tileWidth, tileWidth );
-              textures[ i ].image = canvas
-              textures[ i ].needsUpdate = true;
-          }
-      };
-      imageObj.src = atlasImgUrl;
-      return textures;
-  }
-    function resize() {
-      var width = container.offsetWidth;
-      var height = container.offsetHeight;
-
-      camera.aspect = width / height;
-      camera.updateProjectionMatrix();
-
-      renderer.setSize(width, height);
-      // effect.setSize(width, height);
-    }
-
-    function update(dt) {
-      resize();
-
-      camera.updateProjectionMatrix();
-
-      controls.update(dt);
-    }
-
-    function render(dt) {
-       renderer.render(scene, camera);
-    }
-
-    function animate(t) {
-      requestAnimationFrame(animate);
-
-      update(clock.getDelta());
-      render(clock.getDelta());
-    }
-
-    function fullscreen() {
-      if (container.requestFullscreen) {
-        container.requestFullscreen();
-      } else if (container.msRequestFullscreen) {
-        container.msRequestFullscreen();
-      } else if (container.mozRequestFullScreen) {
-        container.mozRequestFullScreen();
-      } else if (container.webkitRequestFullscreen) {
-        container.webkitRequestFullscreen();
-      }
-    }
-  </script>
-  </body>
+                renderer = new THREE.CSS3DRenderer();
+                renderer.setSize( window.innerWidth, window.innerHeight );
+                document.body.appendChild( renderer.domElement );
+                //
+                window.addEventListener( 'resize', onWindowResize, false );
+            }
+            function onWindowResize() {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize( window.innerWidth, window.innerHeight );
+            }
+            function animate() {
+                requestAnimationFrame( animate );
+                controls.update();
+                renderer.render( scene, camera );
+            }
+            function update(dt) {
+                resize();
+                camera.updateProjectionMatrix();
+                controls.update(dt);
+            }
+        </script>
+    </body>
 </html>
