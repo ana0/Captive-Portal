@@ -115,15 +115,22 @@
                     cube.add( object );
                 }
 
-                var div = document.createElement( 'div' );
-                div.style.width = '80px';
-                div.style.height = '60px';
-                div.style.backgroundColor = '#FFF';
+                var languageSelectionMenu = document.createElement( 'div' );
+                languageSelectionMenu.style.width = '80px';
+                languageSelectionMenu.style.height = '60px';
+                languageSelectionMenu.style.backgroundColor = '#FFF';
 
-                var menu = new THREE.CSS3DObject( div );
-                menu.position.set( 0, -200, 0 );
-                menu.rotation.set( - Math.PI / 2, 0, Math.PI );
-                scene.add( menu );
+                var englishButton = document.createElement( 'button' );
+                englishButton.innerHTML = 'English';
+                var hebrewButton = document.createElement( 'button' );
+                hebrewButton.innerHTML = 'Hebrew'
+                languageSelectionMenu.appendChild( englishButton );
+                languageSelectionMenu.appendChild( hebrewButton );
+
+                var languageSelectionBox = new THREE.CSS3DObject( languageSelectionMenu );
+                languageSelectionBox.position.set( 0, 0, 200 );
+                languageSelectionBox.rotation.set( 0, Math.PI, 0 );
+                scene.add( languageSelectionBox );
 
 
                 renderer = new THREE.CSS3DRenderer();
