@@ -25,6 +25,13 @@
                 text-align: center;
                 z-index: 1;
             }
+            #formPageOne {
+                display: none;
+                background-color: #FFF;
+                position: fixed;
+                top: 0px;
+                z-index: 20;
+            }
         </style>
     </head>
     <body>
@@ -122,16 +129,28 @@
 
                 var englishButton = document.createElement( 'button' );
                 englishButton.innerHTML = 'English';
+                englishButton.onclick = function(){showEnglishFormOne()};
                 var hebrewButton = document.createElement( 'button' );
-                hebrewButton.innerHTML = 'Hebrew'
+                hebrewButton.innerHTML = 'עִברִית'
+                hebrewButton.onclick = function(){myScript};
                 languageSelectionMenu.appendChild( englishButton );
                 languageSelectionMenu.appendChild( hebrewButton );
+
+                var showEnglishFormOne = function() {
+                    console.log("fired event")
+                    languageSelectionMenu.style.display = 'none';
+                    var formPageOne = document.getElementById( "formPageOne" );
+                    formPageOne.style.display = 'block';
+                    formPageOne.style.width = '500px';
+                    console.log(window.innerWidth)
+                    formPageOne.style.height = '500px';
+                }
+
 
                 var languageSelectionBox = new THREE.CSS3DObject( languageSelectionMenu );
                 languageSelectionBox.position.set( 0, 0, 200 );
                 languageSelectionBox.rotation.set( 0, Math.PI, 0 );
                 scene.add( languageSelectionBox );
-
 
                 renderer = new THREE.CSS3DRenderer();
                 renderer.setSize( window.innerWidth, window.innerHeight );
@@ -154,6 +173,8 @@
                 camera.updateProjectionMatrix();
                 controls.update(dt);
             }
+
         </script>
+    <div id="formPageOne">CATS</div>
     </body>
 </html>
