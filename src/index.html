@@ -17,8 +17,8 @@
             h1 {
                 font-family: TimesNewRoman, "Times New Roman", Times, Baskerville, Georgia, serif;
                 color: #ffffff;
-                font-size: 14pt;
-                line-height: 90%;
+                font-size: 12pt;
+                -webkit-font-smoothing: antialiased;
             }
             table {
                 width: 100%;
@@ -26,16 +26,59 @@
             }
             table p {
                 font-size: 10pt;
-                line-height: 0;
-                padding-left: 10px;
+/*                padding-left: 10px;*/
+                margin: 0px;
             }
-            td {
-                height: 80%;
+            table span {
+                font-size: 10pt;
+                padding-left: 10px;
+                margin: 0px;
+                position: absolute;
+                display: inline-block;
+            }
+            button {
+                background-color: #d80e09;
+                font-family: TimesNewRoman, "Times New Roman", Times, Baskerville, Georgia, serif;
+                color: #ffffff;
+                border: none;
+                padding-left: 20px;
+                padding-right: 20px;
+                -webkit-font-smoothing: antialiased;
+            }
+            .logo {
+                width: 50px;
+                height: auto;
+                margin: 5px;
+                display: inline-block;
+            }
+            input[type=text] {
+                width: 95%;
+                border: 1px solid #59a4e2;
+            }
+            input[type=checkbox] {
+                border: 1px solid #59a4e2;
+                -webkit-appearance: none;
+                background: #ffffff;
+                width: 15px;
+                height: 15px;
+                margin: 0px;
+                text-align: center;
+                outline-offset: 0;
+            }
+            input[type=checkbox]:checked:after {
+                content: '✓';
+                outline-offset: 0;
+            }
+            .formH1 {
+                display: inline-block;
+                position: absolute;
+                padding-left: 10px;
             }
             .formHeading {
                 background-color: #0e2c70;
-                padding: 10px;
+                padding: 5px;
             }
+
             .formBody {
                 background-color: #eadfdf;
                 display: block;
@@ -50,10 +93,13 @@
                 font-family: TimesNewRoman, "Times New Roman", Times, Baskerville, Georgia, serif;
                 color: #ffffff;
                 font-size: 10pt;
-                line-height: 0;
             }
-            .tableHeader {
+            tr.tableHeader > td {
                 border-bottom: 1px solid #000000;
+                margin-bottom: 5px;
+            }
+            tr.spaceAbove > td {
+                padding-top: 10px;
             }
             #info {
                 position: absolute;
@@ -66,12 +112,15 @@
                 text-align: center;
                 z-index: 1;
             }
-            #formPageOneEng, #formPageOneHeb, #successEng, #successHeb, #failEng, #failHeb{
+            #formPageOneEng, #formPageOneHeb, #successEng, #successHeb, #failEng, #failHeb {
                 display: none;
                 background-color: #ffffff;
                 position: fixed;
                 top: 0px;
                 z-index: 20;
+            }
+            .crimRecordExt, .arrestExt {
+                display: none;
             }
         </style>
     </head>
@@ -85,6 +134,7 @@
         <script>
             var camera, scene, renderer;
             var geometry, material, mesh;
+            var language = 'Eng';
             init();
             animate();
 
@@ -120,32 +170,32 @@
                 scene = new THREE.Scene();
                 var sides = [
                     {
-                        url: 'textures/cube/Bridge2/posx.jpg',
+                        url: 'textures/cube/Wall/3posx.jpg',
                         position: [ -512, 0, 0 ],
                         rotation: [ 0, Math.PI / 2, 0 ]
                     },
                     {
-                        url: 'textures/cube/Bridge2/negx.jpg',
+                        url: 'textures/cube/Wall/3negx.jpg',
                         position: [ 512, 0, 0 ],
                         rotation: [ 0, -Math.PI / 2, 0 ]
                     },
                     {
-                        url: 'textures/cube/Bridge2/posy.jpg',
+                        url: 'textures/cube/Wall/3posy.jpg',
                         position: [ 0,  512, 0 ],
                         rotation: [ Math.PI / 2, 0, Math.PI ]
                     },
                     {
-                        url: 'textures/cube/Bridge2/negy.jpg',
+                        url: 'textures/cube/Wall/2negy.jpg',
                         position: [ 0, -512, 0 ],
                         rotation: [ - Math.PI / 2, 0, Math.PI ]
                     },
                     {
-                        url: 'textures/cube/Bridge2/posz.jpg',
+                        url: 'textures/cube/Wall/4negz.jpg',
                         position: [ 0, 0,  512 ],
                         rotation: [ 0, Math.PI, 0 ]
                     },
                     {
-                        url: 'textures/cube/Bridge2/negz.jpg',
+                        url: 'textures/cube/Wall/4posz.jpg',
                         position: [ 0, 0, -512 ],
                         rotation: [ 0, 0, 0 ]
                     }
@@ -164,40 +214,78 @@
                 }
 
                 var languageSelectionMenu = document.createElement('div');
-                languageSelectionMenu.style.width = '80px';
-                languageSelectionMenu.style.height = '60px';
-                languageSelectionMenu.style.backgroundColor = '#FFF';
+                languageSelectionMenu.style.width = '400px';
+                languageSelectionMenu.style.backgroundColor = 'rgba(234, 223, 223, 0.7)';
+
+                var languageHeading = document.createElement('div');
+                languageHeading.className = 'formHeading';
+                var languageLogo = document.createElement('img');
+                languageLogo.src = 'textures/logo.png';
+                languageLogo.className = 'logo';
+                languageHeading.appendChild(languageLogo);
+                languageH1 = document.createElement('div');
+                languageH1.className = 'formH1';
+                languageH1.innerHTML = '<h1>C. P. Customs and <br>Border Protection</h1>';
+                languageHeading.appendChild(languageH1);
+                languageSelectionMenu.appendChild(languageHeading);
+
+                var languageBody = document.createElement('div');
+                languageBody.style.padding = '10px';
+                languageBody.style.height = '100px';
+                languageSelectionMenu.appendChild(languageBody);
 
                 var englishButton = document.createElement('button');
                 englishButton.innerHTML = 'English';
+                englishButton.style.position = 'absolute';
+                englishButton.style.left = '20px';
+                englishButton.style.backgroundColor = '#000000';
+                englishButton.style.marginBottom = '20px';
                 englishButton.onclick = function() {showEnglishFormOne()};
+                languageBody.appendChild(englishButton);
+
                 var hebrewButton = document.createElement('button');
-                hebrewButton.innerHTML = 'עִברִית'
+                hebrewButton.innerHTML = 'עִברִית';
+                hebrewButton.style.position = 'absolute';
+                hebrewButton.style.right = '20px';
+                hebrewButton.style.backgroundColor = '#000000'
+                hebrewButton.style.marginBottom = '30px';
                 hebrewButton.onclick = function() {showHebrewFormOne()};
-                languageSelectionMenu.appendChild(englishButton);
-                languageSelectionMenu.appendChild(hebrewButton);
+                languageBody.appendChild(hebrewButton);
+
+                var proceedButton = document.createElement('button');
+                proceedButton.innerHTML = 'Proceed';
+                proceedButton.style.position = 'absolute';
+                proceedButton.style.right = '30px';
+                proceedButton.style.bottom = '10px';
+                proceedButton.style.marginBottom = '10px';
+                proceedButton.onclick = function() {proceedToForm()};
+                languageBody.appendChild(proceedButton);
 
                 var languageSelectionBox = new THREE.CSS3DObject(languageSelectionMenu);
-                languageSelectionBox.position.set(0, 0, 200);
+                languageSelectionBox.position.set(0, 0, 512);
                 languageSelectionBox.rotation.set(0, Math.PI, 0);
                 scene.add(languageSelectionBox);
 
                 var showEnglishFormOne = function() {
-                    console.log("fired event")
-                    languageSelectionMenu.style.display = 'none';
-                    var formPageOneEng = document.getElementById("formPageOneEng");
-                    formPageOneEng.style.display = 'block';
-                    formPageOneEng.style.width = String(window.innerWidth) + 'px';
-                    formPageOneEng.style.height = String(window.innerHeight) + 'px';
+                    language = 'Eng';
+                    languageSelectionMenu.removeAttribute('dir');
+                    languageH1.innerHTML = '<h1>C. P. Customs and <br>Border Protection</h1>';
+                    proceedButton.innerHTML = 'Proceed';
                 }
 
                 var showHebrewFormOne = function() {
-                    console.log("fired event")
+                    language = 'Heb';
+                    languageSelectionMenu.setAttribute('dir', 'rtl');
+                    languageH1.innerHTML = '<h1>ג פ מכס<br>והגנת גבולות</h1>';
+                    proceedButton.innerHTML = 'לְהִתְקַדֵם';
+                }
+
+                var proceedToForm = function() {
                     languageSelectionMenu.style.display = 'none';
-                    var formPageOneHeb = document.getElementById("formPageOneHeb");
-                    formPageOneHeb.style.display = 'block';
-                    formPageOneHeb.style.width = String(window.innerWidth) + 'px';
-                    formPageOneHeb.style.height = String(window.innerHeight) + 'px';
+                    var formPageOne = document.getElementById("formPageOne" + language);
+                    formPageOne.style.display = 'block';
+                    formPageOne.style.width = String(window.innerWidth) + 'px';
+                    formPageOne.style.height = String(window.innerHeight) + 'px';
                 }
 
                 renderer = new THREE.CSS3DRenderer();
@@ -223,26 +311,67 @@
             }
 
         </script>
-        <script>
-            var contEng = document.getElementById("contEng");
-            contEng.onclick = function() {};
-
-            var contHeb = document.getElementById("contHeb");
-            contHeb.onclick = function() {};
-        </script>
     <div id="formPageOneEng">
         <div class="formHeading">
-            <h1>C. P. Customs and Border Protection</h1>
+            <img src='textures/logo.png' class="logo">
+            <div class="formH1"><h1>C. P. Customs and <br>Border Protection</h1></div>
         </div>
         <div class="formBody">
             <div class="mandatory">
                 <p>ALL FIELDS ARE MANDATORY</p>
                 <p>Falsifying or witholding information on this document is a federal offence</p>
             </div>
+            <table>
+                <tr class="tableHeader">
+                    <td colspan="3"><p>Identity</p></td>
+                </tr>
+                <tr class="spaceAbove">
+                    <td><p>Date of Birth</p></td>
+                    <td><p>Country of Birth</p></td>
+                </tr>
+                <tr>
+                    <td><input class="textInput" type="text"\></td>
+                    <td><input class="textInput" type="text"\></td>
+                </tr>
+                <tr class="spaceAbove">
+                    <td><p>Gender</p></td>
+                    <td><p>Sexual Orientation</p></td>
+                </tr>
+                <tr>
+                    <td><input class="textInput" type="text"\></td>
+                    <td><input class="textInput" type="text"\></td>
+                </tr>
+                <tr class="spaceAbove">
+                    <td><p>Religious Affiliation</p></td>
+                    <td><p>Race/Ethnicity</p></td>
+                </tr>
+                <tr>
+                    <td><input class="textInput" type="text"\></td>
+                    <td><input class="textInput" type="text"\></td>
+                </tr>
+                <tr class="spaceAbove">
+                    <td colspan="2"><input class="crimRecord" type="checkbox"></input><span>Do you have a criminal record?</span></td>
+                </tr>
+                <tr class="spaceAbove, crimRecordExt">
+                    <td colspan="2"><p>What is the nature of the charges?</p></td>
+                </tr>
+                <tr class="crimRecordExt">
+                    <td colspan="2"><input class="textInput" type="text"\></td>
+                </tr>
+                <tr class="spaceAbove">
+                    <td colspan="2"><input class="arrest" type="checkbox"\><span>Have you ever been arrested?</span></td>
+                </tr>
+                <tr class="spaceAbove, arrestExt">
+                    <td colspan="2"><p>For what??</p></td>
+                </tr>
+                <tr class="arrestExt">
+                    <td colspan="2"><input class="textInput" type="text"\></td>
+                </tr>
+            </table>
             <button id="contEng">Submit</button>
         </div>
     </div>
-    <div id="formPageOneHeb">
+    <div dir="rtl" id="formPageOneHeb">
         <div class="formHeading">
             <h1>ג פ המכס והגנת הגבולות</h1>
         </div>
@@ -252,8 +381,8 @@
                 <p>זיוף או במקור מידע על מסמך זה הוא עבירה פדרלית</p>
             </div>
             <table>
-                <tr class="tableHeader">
-                    <td class="tableHeader" colspan="2"><p>Identity</p></td>
+                <tr>
+                    <td class="tableHeader" colspan="2"><p>זהות</p></td>
                 </tr>
                 <tr>
                     <td>ok</td>
@@ -269,4 +398,67 @@
 
     <div id="failEng"></div>
     <div id="failHeb"></div>
+    <script>
+        var contEng = document.getElementById("contEng");
+        contEng.onclick = function() {};
+
+        var contHeb = document.getElementById("contHeb");
+        contHeb.onclick = function() {};
+
+        var getFormExtensions = function() {
+            return document.querySelectorAll('input[type=checkbox]:checked');
+        }
+
+        var formExtensions = getFormExtensions();
+
+        var checkboxes = document.querySelectorAll('input[type=checkbox]');
+        for (i = 0; i < checkboxes.length; i++) {
+            checkboxes[i].onchange = function() {
+                checkFormExtensions(checkboxes[i])
+            };
+        }
+
+        var checkFormExtensions = function(clickedCheckbox) {
+            console.log("called checkFormExtensions");
+            console.log(clickedCheckbox);
+            formExtensions = getFormExtensions()
+            for (i = 0; i < formExtensions.length; i++) {
+                if (formExtensions[i] === clickedCheckbox) {
+                    showExtensionElements(clickedCheckbox);
+                } else {
+                    hideExtensionElements(clickedCheckbox);
+                }
+            }
+        }
+
+        var showExtensionElements = function(clickedCheckbox) {
+            console.log("called showExtensionElements");
+            console.log(clickedCheckbox);
+            var classToExtend = "." + String(clickedCheckbox.className) + 'Ext';
+            console.log(classToExtend);
+            var extensions = document.querySelectorAll(classToExtend);
+            console.log(extensions)
+            for (i = 0; i < extensions.length; i++) {
+                extensions[i].style.display = 'table-row';
+            }
+        }
+
+        var hideExtensionElements = function(clickedCheckbox) {
+            console.log("called showExtensionElements");
+            console.log(clickedCheckbox);
+            var classToUnextend = "." + String(clickedCheckbox.className) + 'Ext';
+            console.log(classToExtend);
+            var extensions = document.querySelectorAll(classToUnextend);
+            console.log(extensions)
+            for (i = 0; i < extensions.length; i++) {
+                extensions[i].style.display = 'none';
+            }
+        }
+
+        var formExtensions = document.querySelectorAll('input[type=checkbox]:checked');
+        for (i = 0; i < formExtensions.length; i++) {
+            console.log("ok");
+            console.log(formExtensions[i]);
+        }
+    </script>
 </html>
