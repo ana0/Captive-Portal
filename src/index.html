@@ -119,8 +119,47 @@
                 top: 0px;
                 z-index: 20;
             }
+            #digEng, #digHeb {
+                display: none;
+                background-color: #000000;
+                position: fixed;
+                top: 0px;
+                z-index: 20;    
+                color: #1cef3c;
+                font-family: "Lucida Console", Monaco, monospace;
+                font-size: 10pt;
+                padding: 10px;           
+            }
             .crimRecordExt, .arrestExt {
                 display: none;
+            }
+            .message {
+                background-color: #ffffff;
+                font-size: 8pt;
+                border: 2px solid #000000;
+                font-family: "Lucida Console", Monaco, monospace;
+                padding:0px 10px 0px 10px;
+                border-radius: 10px;
+            }
+            .yesButton {
+                background-color: #ffffff;
+                font-size: 8pt;
+                border: 2px solid #000000;
+                float: left;
+                margin-bottom: 10px;
+                color: #000000;
+                border-radius: 5px;
+                font-family: "Lucida Console", Monaco, monospace;
+            }
+            .noButton {
+                background-color: #ffffff;
+                font-size: 8pt;
+                border: 2px solid #000000;
+                float: right;
+                margin-bottom: 10px;
+                color: #000000;
+                border-radius: 5px;
+                font-family: "Lucida Console", Monaco, monospace;
             }
         </style>
     </head>
@@ -132,11 +171,15 @@
         <script src="js/third-party/threejs/OrbitControls.js"></script>
 
         <script>
+            //@to-do comment this, divide it into logical sections
+            //@to-do move most css into style section
+
             var camera, scene, renderer;
             var geometry, material, mesh;
             var language = 'Eng';
             init();
             animate();
+
 
             function init() {
                 camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
@@ -163,9 +206,12 @@
                     element.addEventListener('click', fullscreen, false);
 
                     window.removeEventListener('deviceorientation', setOrientationControls, true);
-              }
+                }
 
-              window.addEventListener('deviceorientation', setOrientationControls, true);
+                window.addEventListener('deviceorientation', setOrientationControls, true);
+
+                var toRadians = function(degree) {
+                    return degree*(Math.PI/180);}
                 
                 scene = new THREE.Scene();
                 var sides = [
@@ -288,10 +334,81 @@
                     formPageOne.style.height = String(window.innerHeight) + 'px';
                 }
 
+                var shovelInfo = document.createElement('div');
+                var shovelIcon = document.createElement('img');
+                shovelIcon.src = 'textures/pointer.gif';
+                shovelIcon.onclick = function() {showMessage('You have found a shovel<br> . . would you like to dig?', 'מצאת את חפירה<br> . . אתה רוצה לחפור?', shovelInfo, shovelChoice)};
+                shovelInfo.appendChild(shovelIcon);
+
+                var shovelBox = new THREE.CSS3DObject(shovelInfo);
+                shovelBox.position.set(-200, -312, -200);
+                var xRotation = toRadians(-215);
+                var yRotation = toRadians(135);
+                var zRotation = toRadians(-135);
+                shovelBox.rotation.set(xRotation, yRotation, zRotation);
+                scene.add(shovelBox);
+
+                var yesButton = document.createElement('button');
+                yesButton.onclick = function() {};
+
+                var noButton = document.createElement('button');
+                noButton.onclick = function() {};
+
+                var showMessage = function(engMessage, hebMessage, divToChange, callback) {
+                    if (language === 'Eng') {
+                        divToChange.removeAttribute('dir');
+                        divToChange.innerHTML = '<p>'+ engMessage + '</p>';
+                    } else {
+                        divToChange.setAttribute('dir', 'rtl');
+                        divToChange.innerHTML = '<p>'+ hebMessage + '</p>';
+                    }
+                    divToChange.className = 'message';
+                    callback();
+                }
+
+                var shovelChoice = function() {
+                    if (language === 'Eng') {
+                        yesButton.removeAttribute('dir');
+                        yesButton.innerHTML = 'Yes';
+                        noButton.removeAttribute('dir');
+                        noButton.innerHTML = 'No';
+                    } else {
+                        yesButton.setAttribute('dir', 'rtl');
+                        yesButton.innerHTML = 'כן';
+                        noButton.setAttribute('dir', 'rtl');
+                        noButton.innerHTML = 'לא';
+                    }
+                    yesButton.className = 'yesButton';
+                    noButton.className = 'noButton';
+                    shovelInfo.appendChild(yesButton);
+                    yesButton.onclick = function() {dig()};
+                    shovelInfo.appendChild(noButton);
+                    noButton.onclick = function() {dontDig()};
+                }
+
+                var dig = function() {
+                    showMessage('You dig. The sand is heavy and your shoulders<br> begin to ache, but you continue anyway.</p><p>Suddenly, your shovel hits something. Something hard.<br>     . . . Do you want to keep digging?', 'אתה לחפור. החול הוא כבד והכתפיים מתחילות לכאוב, אבל אתה ממשיך בכל זאת.</p><p>פתאום, את חפירת רגלכם משהו. משהו קשה<br>     . . . האם אתה רוצה להמשיFך לחפור?', shovelInfo, continueDig)
+                }
+
+                var continueDig = function() {
+                    shovelChoice();
+                    yesButton.onclick = function() {
+                        console.log("continue dig")
+                        var diggingConsole = document.getElementById('dig' + language);
+                        console.log(diggingConsole);
+                        diggingConsole.style.display = 'block';
+                        diggingConsole.style.width = String(window.innerWidth) + 'px';
+                        diggingConsole.style.height = String(window.innerHeight) + 'px';
+                    }
+                }
+
+                var dontDig = function() {
+                    shovelInfo.style.display = 'none';
+                }
+
                 renderer = new THREE.CSS3DRenderer();
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 document.body.appendChild(renderer.domElement);
-                //
                 window.addEventListener('resize', onWindowResize, false);
             }
             function onWindowResize() {
@@ -391,13 +508,44 @@
             </table>
             <button id="contHeb">שלח</button>
         </div>
-    </body>
-
+    </div>
     <div id="successEng"></div>
-    <div id="successHeb"></div>
+    <div id="successHeb" dir="rtl"></div>
 
     <div id="failEng"></div>
-    <div id="failHeb"></div>
+    <div id="failHeb" dir="rtl"></div>
+
+    <div id="digEng"><p>You stab the shovel as hard as you can into the bottom of the hole, and you hear a noise like glass breaking. <br><br><br>
+        You can't see anything down here in the hole anymore but you keep digging.  <br>The sand begins to feel . . . lighter.<br><br><br>
+        You continue digging. <br><br><br>
+        The sand is  . . . . weightless. You begin to wonder if you're digging anything at all.  <br>Is it just you and the darkness down here, swinging a shovel around?<br><br><br>
+        You think you see something moving . . . glowing faintly. <br><br><br><br><br>
+        Configuring ISP PNP<br>
+        Setting system time from the hardware clock (localtime).<br>
+        Using /etc/random-seed to initialize /dev/urandom.<br>
+        Initializing basic system settings . . .<br>
+        Updating shared libraries<br>
+        Setting hostname: Anon512<br>
+        No devices found<br>
+        Checking filesystems<br>
+        INIT: Entering runlevel: 4<br>
+        Checking for hardware changes<br>
+        rc.M ==> Going multiuser . . .<br>
+        Starting system logger . . .<br>
+        Initializing advanced hardware<br>
+        Setting up modules<br>
+        Initializing network<br>
+        Setting up localhost . . .<br>
+        Setting up inet1 . . . .<br>
+        Setting up route <br>
+        Setting up console and GUI<br>
+        Loading fc-cache . . .<br>
+        rc.vlinit ==> Going to runlevel 4<br>
+        Starting dnsmasq . . .<br>
+        Bringing up interface wlan0:<br>
+        Determining IP information for wlan0 . . . done.<br></p>
+        </div>
+    <div id="digHeb" dir="rtl"></div>
     <script>
         var contEng = document.getElementById("contEng");
         contEng.onclick = function() {};
@@ -461,4 +609,5 @@
             console.log(formExtensions[i]);
         }
     </script>
+    </body>
 </html>
