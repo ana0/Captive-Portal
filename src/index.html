@@ -104,16 +104,12 @@
             tr.spaceAbove > td {
                 padding-top: 10px;
             }
-            #info {
+            #example {
                 position: absolute;
-                width: 100%;
-                color: #ffffff;
-                padding: 5px;
-                font-family: Monospace;
-                font-size: 13px;
-                font-weight: bold;
-                text-align: center;
-                z-index: 1;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
             }
             #formPageOneEng, #formPageOneHeb {
                 display: none;
@@ -129,7 +125,6 @@
                 position: fixed;
                 top: 0px;
                 z-index: 20;
-/*                overflow: auto;*/
             }
             #digEng, #digHeb {
                 display: none;
@@ -140,7 +135,6 @@
                 color: #1cef3c;
                 font-family: "Lucida Console", Monaco, monospace;
                 font-size: 10pt;
-                /*padding: 10px;*/
                 overflow-y: auto;           
             }
             #digEng p, #digHeb p {
@@ -219,305 +213,13 @@
     </head>
     <body>
         
-        <script src="js/third-party/threejs/three.js"></script>
-        <script src="js/third-party/threejs/DeviceOrientationControls.js"></script>
-        <script src="js/third-party/threejs/CSS3DRenderer.js"></script>
-        <script src="js/third-party/threejs/OrbitControls.js"></script>
+    <script src="js/third-party/threejs/three.js"></script>
+    <script src="js/third-party/threejs/DeviceOrientationControls.js"></script>
+    <script src="js/third-party/threejs/CSS3DRenderer.js"></script>
+    <script src="js/third-party/threejs/OrbitControls.js"></script>
 
-        <script>
-            //@to-do comment this, divide it into logical sections
-            //@to-do move most css into style section
+    <div id="3Dscene"></div>
 
-            var camera, scene, renderer;
-            var geometry, material, mesh;
-            var language = 'Eng';
-            init();
-            animate();
-
-
-            function init() {
-                camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
-
-                controls = new THREE.OrbitControls(camera, element);
-                controls.rotateUp(Math.PI / 4);
-                controls.target.set(
-                    camera.position.x + 0.1,
-                    camera.position.y,
-                    camera.position.z
-                );
-                controls.noZoom = true;
-                controls.noPan = true;
-
-                function setOrientationControls(e) {
-                    if (!e.alpha) {
-                         return;
-                    }
-
-                    controls = new THREE.DeviceOrientationControls(camera, true);
-                    controls.connect();
-                    controls.update();
-
-                    element.addEventListener('click', fullscreen, false);
-
-                    window.removeEventListener('deviceorientation', setOrientationControls, true);
-                }
-
-                window.addEventListener('deviceorientation', setOrientationControls, true);
-
-                var toRadians = function(degree) {
-                    return degree*(Math.PI/180);}
-                
-                scene = new THREE.Scene();
-                var sides = [
-                    {
-                        url: 'textures/cube/Wall/3posx.jpg',
-                        position: [ -512, 0, 0 ],
-                        rotation: [ 0, Math.PI / 2, 0 ]
-                    },
-                    {
-                        url: 'textures/cube/Wall/3negx.jpg',
-                        position: [ 512, 0, 0 ],
-                        rotation: [ 0, -Math.PI / 2, 0 ]
-                    },
-                    {
-                        url: 'textures/cube/Wall/3posy.jpg',
-                        position: [ 0,  512, 0 ],
-                        rotation: [ Math.PI / 2, 0, Math.PI ]
-                    },
-                    {
-                        url: 'textures/cube/Wall/2negy.jpg',
-                        position: [ 0, -512, 0 ],
-                        rotation: [ - Math.PI / 2, 0, Math.PI ]
-                    },
-                    {
-                        url: 'textures/cube/Wall/4negz.jpg',
-                        position: [ 0, 0,  512 ],
-                        rotation: [ 0, Math.PI, 0 ]
-                    },
-                    {
-                        url: 'textures/cube/Wall/4posz.jpg',
-                        position: [ 0, 0, -512 ],
-                        rotation: [ 0, 0, 0 ]
-                    }
-                ];
-                var cube = new THREE.Object3D();
-                scene.add(cube);
-                for ( var i = 0; i < sides.length; i ++ ) {
-                    var side = sides[ i ];
-                    var element = document.createElement('img');
-                    element.width = 1026; // 2 pixels extra to close the gap.
-                    element.src = side.url;
-                    var object = new THREE.CSS3DObject(element);
-                    object.position.fromArray(side.position);
-                    object.rotation.fromArray(side.rotation);
-                    cube.add(object);
-                }
-
-                var languageSelectionMenu = document.createElement('div');
-                languageSelectionMenu.style.width = '250px';
-                languageSelectionMenu.style.backgroundColor = 'rgba(234, 223, 223, 0.7)';
-
-                var languageHeading = document.createElement('div');
-                languageHeading.className = 'formHeading';
-                var languageLogo = document.createElement('img');
-                languageLogo.src = 'textures/logo.png';
-                languageLogo.className = 'logo';
-                languageHeading.appendChild(languageLogo);
-                languageH1 = document.createElement('div');
-                languageH1.className = 'formH1';
-                languageH1.innerHTML = '<h1>C. P. Customs and <br>Border Protection</h1>';
-                languageHeading.appendChild(languageH1);
-                languageSelectionMenu.appendChild(languageHeading);
-
-                var languageBody = document.createElement('div');
-                languageBody.style.padding = '20px';
-                languageBody.style.height = '70px';
-                languageSelectionMenu.appendChild(languageBody);
-
-                var englishButton = document.createElement('button');
-                englishButton.innerHTML = 'English';
-                englishButton.className = 'languageButton';
-                englishButton.style.left = '30px';
-                englishButton.onclick = function() {showEnglishFormOne()};
-                languageBody.appendChild(englishButton);
-
-                var hebrewButton = document.createElement('button');
-                hebrewButton.innerHTML = 'עִברִית';
-                hebrewButton.className = 'languageButton';
-                hebrewButton.style.right = '30px';
-                hebrewButton.onclick = function() {showHebrewFormOne()};
-                languageBody.appendChild(hebrewButton);
-
-                var proceedButton = document.createElement('button');
-                proceedButton.innerHTML = 'Proceed';
-                proceedButton.className = 'proceedButton';
-                proceedButton.onclick = function() {proceedToForm()};
-                languageBody.appendChild(proceedButton);
-
-                var languageSelectionBox = new THREE.CSS3DObject(languageSelectionMenu);
-                languageSelectionBox.position.set(0, 0, 512);
-                languageSelectionBox.rotation.set(0, Math.PI, 0);
-                scene.add(languageSelectionBox);
-
-                var showEnglishFormOne = function() {
-                    language = 'Eng';
-                    languageSelectionMenu.removeAttribute('dir');
-                    languageH1.innerHTML = '<h1>C. P. Customs and <br>Border Protection</h1>';
-                    proceedButton.innerHTML = 'Proceed';
-                }
-
-                var showHebrewFormOne = function() {
-                    language = 'Heb';
-                    languageSelectionMenu.setAttribute('dir', 'rtl');
-                    languageH1.innerHTML = '<h1>ג פ מכס<br>והגנת גבולות</h1>';
-                    proceedButton.innerHTML = 'לְהִתְקַדֵם';
-                }
-
-                var proceedToForm = function() {
-                    languageSelectionMenu.style.display = 'none';
-                    var formPageOne = document.getElementById("formPageOne" + language);
-                    formPageOne.style.display = 'block';
-                    formPageOne.style.width = String(window.innerWidth) + 'px';
-                    formPageOne.style.height = String(window.innerHeight) + 'px';
-                    controls.enabled = false;
-                }
-
-                var skyInfo = document.createElement('div');
-                var skyIcon = document.createElement('img');
-                skyIcon.src = 'textures/pointer.gif';
-                skyIcon.onclick = function() {showMessage("The hot sun burns down on you<br><br>If you stay out here you'll die of thirst", 'השמש החמה יוקדת על אתה<br><br> . . אם אתה נשאר כאן תוכל למות בצמא', skyInfo, (function() {setTimeout(hideSelf, 3000, skyInfo)}))
-                };
-                skyInfo.appendChild(skyIcon);
-
-                var skyBox = new THREE.CSS3DObject(skyInfo);
-                skyBox.position.set(0,  312, 0);
-                skyBox.rotation.set(Math.PI / 2, 0, Math.PI);
-                scene.add(skyBox);
-
-                var fenceInfo = document.createElement('div');
-                var fenceIcon = document.createElement('img');
-                fenceIcon.src = 'textures/pointer.gif';
-                fenceIcon.onclick = function() {showMessage("The fence is too high to climb.", 'הגדר היא גבוהה מדי לטפס.', fenceInfo, (function() {setTimeout(hideSelf, 3000, fenceInfo)}))
-                };
-                fenceInfo.appendChild(fenceIcon);
-
-                var fenceBox = new THREE.CSS3DObject(fenceInfo);
-                fenceBox.position.set(312, 170, 200);
-                var xRotationFence = toRadians(-215);
-                var yRotationFence = toRadians(135);
-                var zRotationFence = toRadians(-180);
-                fenceBox.rotation.set(0, -Math.PI / 2, 0);
-                scene.add(fenceBox);
-
-                var hideSelf = function(elementToHide) {
-                    elementToHide.style.display = 'none';
-                }
-
-                var shovelInfo = document.createElement('div');
-                var shovelIcon = document.createElement('img');
-                shovelIcon.src = 'textures/pointer.gif';
-                shovelIcon.onclick = function() {
-                    showMessage('You have found a shovel<br> . . would you like to dig?', 'מצאת את חפירה<br> . . אתה רוצה לחפור?', shovelInfo, shovelChoice)};
-                shovelInfo.appendChild(shovelIcon);
-
-                var shovelBox = new THREE.CSS3DObject(shovelInfo);
-                shovelBox.position.set(-200, -312, -200);
-                var xRotationShov = toRadians(-215);
-                var yRotationShov = toRadians(135);
-                var zRotationShov = toRadians(-135);
-                shovelBox.rotation.set(xRotationShov, yRotationShov, zRotationShov);
-                scene.add(shovelBox);
-
-                var yesButton = document.createElement('button');
-                yesButton.onclick = function() {};
-
-                var noButton = document.createElement('button');
-                noButton.onclick = function() {};
-
-                var showMessage = function(engMessage, hebMessage, divToChange, callback) {
-                    if (language === 'Eng') {
-                        divToChange.removeAttribute('dir');
-                        divToChange.innerHTML = '<p>'+ engMessage + '</p>';
-                    } else {
-                        divToChange.setAttribute('dir', 'rtl');
-                        divToChange.innerHTML = '<p>'+ hebMessage + '</p>';
-                    }
-                    divToChange.className = 'message';
-                    callback();
-                }
-
-                var shovelChoice = function() {
-                    if (language === 'Eng') {
-                        yesButton.removeAttribute('dir');
-                        yesButton.innerHTML = 'Yes';
-                        noButton.removeAttribute('dir');
-                        noButton.innerHTML = 'No';
-                    } else {
-                        yesButton.setAttribute('dir', 'rtl');
-                        yesButton.innerHTML = 'כן';
-                        noButton.setAttribute('dir', 'rtl');
-                        noButton.innerHTML = 'לא';
-                    }
-                    yesButton.className = 'yesButton';
-                    noButton.className = 'noButton';
-                    shovelInfo.appendChild(yesButton);
-                    yesButton.onclick = function() {dig()};
-                    shovelInfo.appendChild(noButton);
-                    noButton.onclick = function() {dontDig()};
-                }
-
-                var dig = function() {
-                    showMessage('You dig. The sand is heavy and your shoulders<br> begin to ache, but you continue anyway.</p><p>Suddenly, your shovel hits something. Something hard.<br>     . . . Do you want to keep digging?', 'אתה לחפור. החול הוא כבד והכתפיים מתחילות לכאוב, אבל אתה ממשיך בכל זאת.</p><p>פתאום, את חפירת רגלכם משהו. משהו קשה<br>     . . . האם אתה רוצה להמשיFך לחפור?', shovelInfo, continueDig)
-                }
-
-                var scrollDivUp = function(div) {
-                    if (div.scrollTop >= div.clientHeight) {
-                        console.log("reached max scroll");
-                        return
-                    }
-                    div.scrollTop += 1;
-                    timerUp = setTimeout(scrollDivUp, 100, div);
-                }
-
-                var continueDig = function() {
-                    shovelChoice();
-                    yesButton.onclick = function() {
-                        console.log("continue dig")
-                        var diggingConsole = document.getElementById('dig' + language);
-                        console.log(diggingConsole);
-                        diggingConsole.style.display = 'block';
-                        diggingConsole.style.width = String(window.innerWidth) + 'px';
-                        diggingConsole.style.height = String(window.innerHeight) + 'px';
-                        scrollDivUp(diggingConsole);
-                    }
-                }
-
-                var dontDig = function() {
-                    shovelInfo.style.display = 'none';
-                }
-
-                renderer = new THREE.CSS3DRenderer();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-                document.body.appendChild(renderer.domElement);
-                window.addEventListener('resize', onWindowResize, false);
-            }
-            function onWindowResize() {
-                camera.aspect = window.innerWidth / window.innerHeight;
-                camera.updateProjectionMatrix();
-                renderer.setSize(window.innerWidth, window.innerHeight);
-            }
-            function animate() {
-                requestAnimationFrame(animate);
-                controls.update();
-                renderer.render(scene, camera);
-            }
-            function update(dt) {
-                resize();
-                camera.updateProjectionMatrix();
-                controls.update(dt);
-            }
-
-        </script>
     <div id="formPageOneEng">
         <div class="formHeading">
             <img src='textures/logo.png' class="logo">
@@ -1183,6 +885,312 @@
         <br><br><br><br><br><br><br><br><br></p>
         <button class="cyberButton successButton">wlan0</button>
     </div>
+
+    <script>
+        //@to-do comment this, divide it into logical sections
+        //@to-do move most css into style section
+
+        var camera, scene, renderer;
+        var geometry, material, mesh;
+        var language = 'Eng';
+        init();
+        animate();
+
+
+        function init() {
+            renderer = new THREE.CSS3DRenderer();
+            element = renderer.domElement;
+            container = document.getElementById("3Dscene");
+            container.appendChild(element);
+
+            // scene = new THREE.Scene();
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
+            // scene.add(camera);
+
+            controls = new THREE.OrbitControls(camera, element);
+            controls.rotateUp(Math.PI / 4);
+            controls.target.set(
+                camera.position.x + 0.1,
+                camera.position.y,
+                camera.position.z
+            );
+            controls.noZoom = true;
+            controls.noPan = true;
+
+            function setOrientationControls(e) {
+                if (!e.alpha) {
+                     return;
+                }
+                console.log('in setOrientationControls')
+                controls = new THREE.DeviceOrientationControls(camera, true);
+                controls.connect();
+                controls.update();
+                //element.addEventListener('click', fullscreen, false);
+                window.removeEventListener('deviceorientation', setOrientationControls, true);
+            }
+
+            window.addEventListener('deviceorientation', setOrientationControls, true);
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            window.addEventListener('resize', onWindowResize, false);
+
+            scene = new THREE.Scene();
+            scene.add(camera);
+
+            var toRadians = function(degree) {
+                return degree*(Math.PI/180);}
+            
+            var sides = [
+                {
+                    url: 'textures/cube/Wall/3posx.jpg',
+                    position: [ -512, 0, 0 ],
+                    rotation: [ 0, Math.PI / 2, 0 ]
+                },
+                {
+                    url: 'textures/cube/Wall/3negx.jpg',
+                    position: [ 512, 0, 0 ],
+                    rotation: [ 0, -Math.PI / 2, 0 ]
+                },
+                {
+                    url: 'textures/cube/Wall/3posy.jpg',
+                    position: [ 0,  512, 0 ],
+                    rotation: [ Math.PI / 2, 0, Math.PI ]
+                },
+                {
+                    url: 'textures/cube/Wall/2negy.jpg',
+                    position: [ 0, -512, 0 ],
+                    rotation: [ - Math.PI / 2, 0, Math.PI ]
+                },
+                {
+                    url: 'textures/cube/Wall/4negz.jpg',
+                    position: [ 0, 0,  512 ],
+                    rotation: [ 0, Math.PI, 0 ]
+                },
+                {
+                    url: 'textures/cube/Wall/4posz.jpg',
+                    position: [ 0, 0, -512 ],
+                    rotation: [ 0, 0, 0 ]
+                }
+            ];
+            var cube = new THREE.Object3D();
+            scene.add(cube);
+            for ( var i = 0; i < sides.length; i ++ ) {
+                var side = sides[ i ];
+                var element = document.createElement('img');
+                element.width = 1026; // 2 pixels extra to close the gap.
+                element.src = side.url;
+                var object = new THREE.CSS3DObject(element);
+                object.position.fromArray(side.position);
+                object.rotation.fromArray(side.rotation);
+                cube.add(object);
+            }
+
+            var languageSelectionMenu = document.createElement('div');
+            languageSelectionMenu.style.width = '250px';
+            languageSelectionMenu.style.backgroundColor = 'rgba(234, 223, 223, 0.7)';
+
+            var languageHeading = document.createElement('div');
+            languageHeading.className = 'formHeading';
+            var languageLogo = document.createElement('img');
+            languageLogo.src = 'textures/logo.png';
+            languageLogo.className = 'logo';
+            languageHeading.appendChild(languageLogo);
+            languageH1 = document.createElement('div');
+            languageH1.className = 'formH1';
+            languageH1.innerHTML = '<h1>C. P. Customs and <br>Border Protection</h1>';
+            languageHeading.appendChild(languageH1);
+            languageSelectionMenu.appendChild(languageHeading);
+
+            var languageBody = document.createElement('div');
+            languageBody.style.padding = '20px';
+            languageBody.style.height = '70px';
+            languageSelectionMenu.appendChild(languageBody);
+
+            var englishButton = document.createElement('button');
+            englishButton.innerHTML = 'English';
+            englishButton.className = 'languageButton';
+            englishButton.style.left = '30px';
+            englishButton.onclick = function() {showEnglishFormOne()};
+            languageBody.appendChild(englishButton);
+
+            var hebrewButton = document.createElement('button');
+            hebrewButton.innerHTML = 'עִברִית';
+            hebrewButton.className = 'languageButton';
+            hebrewButton.style.right = '30px';
+            hebrewButton.onclick = function() {showHebrewFormOne()};
+            languageBody.appendChild(hebrewButton);
+
+            var proceedButton = document.createElement('button');
+            proceedButton.innerHTML = 'Proceed';
+            proceedButton.className = 'proceedButton';
+            proceedButton.onclick = function() {proceedToForm()};
+            languageBody.appendChild(proceedButton);
+
+            var languageSelectionBox = new THREE.CSS3DObject(languageSelectionMenu);
+            languageSelectionBox.position.set(0, 0, 512);
+            languageSelectionBox.rotation.set(0, Math.PI, 0);
+            scene.add(languageSelectionBox);
+
+            var showEnglishFormOne = function() {
+                language = 'Eng';
+                languageSelectionMenu.removeAttribute('dir');
+                languageH1.innerHTML = '<h1>C. P. Customs and <br>Border Protection</h1>';
+                proceedButton.innerHTML = 'Proceed';
+            }
+
+            var showHebrewFormOne = function() {
+                language = 'Heb';
+                languageSelectionMenu.setAttribute('dir', 'rtl');
+                languageH1.innerHTML = '<h1>ג פ מכס<br>והגנת גבולות</h1>';
+                proceedButton.innerHTML = 'לְהִתְקַדֵם';
+            }
+
+            var proceedToForm = function() {
+                languageSelectionMenu.style.display = 'none';
+                var formPageOne = document.getElementById("formPageOne" + language);
+                formPageOne.style.display = 'block';
+                formPageOne.style.width = String(window.innerWidth) + 'px';
+                formPageOne.style.height = String(window.innerHeight) + 'px';
+                controls.enabled = false;
+            }
+
+            var skyInfo = document.createElement('div');
+            var skyIcon = document.createElement('img');
+            skyIcon.src = 'textures/pointer.gif';
+            skyIcon.onclick = function() {showMessage("The hot sun burns down on you<br><br>If you stay out here you'll die of thirst", 'השמש החמה יוקדת על אתה<br><br> . . אם אתה נשאר כאן תוכל למות בצמא', skyInfo, (function() {setTimeout(hideSelf, 3000, skyInfo)}))
+            };
+            skyInfo.appendChild(skyIcon);
+
+            var skyBox = new THREE.CSS3DObject(skyInfo);
+            skyBox.position.set(0,  312, 0);
+            skyBox.rotation.set(Math.PI / 2, 0, Math.PI);
+            scene.add(skyBox);
+
+            var fenceInfo = document.createElement('div');
+            var fenceIcon = document.createElement('img');
+            fenceIcon.src = 'textures/pointer.gif';
+            fenceIcon.onclick = function() {showMessage("The fence is too high to climb.", 'הגדר היא גבוהה מדי לטפס.', fenceInfo, (function() {setTimeout(hideSelf, 3000, fenceInfo)}))
+            };
+            fenceInfo.appendChild(fenceIcon);
+
+            var fenceBox = new THREE.CSS3DObject(fenceInfo);
+            fenceBox.position.set(312, 170, 200);
+            var xRotationFence = toRadians(-215);
+            var yRotationFence = toRadians(135);
+            var zRotationFence = toRadians(-180);
+            fenceBox.rotation.set(0, -Math.PI / 2, 0);
+            scene.add(fenceBox);
+
+            var hideSelf = function(elementToHide) {
+                elementToHide.style.display = 'none';
+            }
+
+            var shovelInfo = document.createElement('div');
+            var shovelIcon = document.createElement('img');
+            shovelIcon.src = 'textures/pointer.gif';
+            shovelIcon.onclick = function() {
+                showMessage('You have found a shovel<br> . . would you like to dig?', 'מצאת את חפירה<br> . . אתה רוצה לחפור?', shovelInfo, shovelChoice)};
+            shovelInfo.appendChild(shovelIcon);
+
+            var shovelBox = new THREE.CSS3DObject(shovelInfo);
+            shovelBox.position.set(-200, -312, -200);
+            var xRotationShov = toRadians(-215);
+            var yRotationShov = toRadians(135);
+            var zRotationShov = toRadians(-135);
+            shovelBox.rotation.set(xRotationShov, yRotationShov, zRotationShov);
+            scene.add(shovelBox);
+
+            var yesButton = document.createElement('button');
+            yesButton.onclick = function() {};
+
+            var noButton = document.createElement('button');
+            noButton.onclick = function() {};
+
+            var showMessage = function(engMessage, hebMessage, divToChange, callback) {
+                if (language === 'Eng') {
+                    divToChange.removeAttribute('dir');
+                    divToChange.innerHTML = '<p>'+ engMessage + '</p>';
+                } else {
+                    divToChange.setAttribute('dir', 'rtl');
+                    divToChange.innerHTML = '<p>'+ hebMessage + '</p>';
+                }
+                divToChange.className = 'message';
+                callback();
+            }
+
+            var shovelChoice = function() {
+                if (language === 'Eng') {
+                    yesButton.removeAttribute('dir');
+                    yesButton.innerHTML = 'Yes';
+                    noButton.removeAttribute('dir');
+                    noButton.innerHTML = 'No';
+                } else {
+                    yesButton.setAttribute('dir', 'rtl');
+                    yesButton.innerHTML = 'כן';
+                    noButton.setAttribute('dir', 'rtl');
+                    noButton.innerHTML = 'לא';
+                }
+                yesButton.className = 'yesButton';
+                noButton.className = 'noButton';
+                shovelInfo.appendChild(yesButton);
+                yesButton.onclick = function() {dig()};
+                shovelInfo.appendChild(noButton);
+                noButton.onclick = function() {dontDig()};
+            }
+
+            var dig = function() {
+                showMessage('You dig. The sand is heavy and your shoulders<br> begin to ache, but you continue anyway.</p><p>Suddenly, your shovel hits something. Something hard.<br>     . . . Do you want to keep digging?', 'אתה לחפור. החול הוא כבד והכתפיים מתחילות לכאוב, אבל אתה ממשיך בכל זאת.</p><p>פתאום, את חפירת רגלכם משהו. משהו קשה<br>     . . . האם אתה רוצה להמשיFך לחפור?', shovelInfo, continueDig)
+            }
+
+            var scrollDivUp = function(div) {
+                if (div.scrollTop >= div.clientHeight) {
+                    console.log("reached max scroll");
+                    return
+                }
+                div.scrollTop += 1;
+                timerUp = setTimeout(scrollDivUp, 100, div);
+            }
+
+            var continueDig = function() {
+                shovelChoice();
+                yesButton.onclick = function() {
+                    console.log("continue dig")
+                    var diggingConsole = document.getElementById('dig' + language);
+                    console.log(diggingConsole);
+                    diggingConsole.style.display = 'block';
+                    diggingConsole.style.width = String(window.innerWidth) + 'px';
+                    diggingConsole.style.height = String(window.innerHeight) + 'px';
+                    scrollDivUp(diggingConsole);
+                }
+            }
+
+            var dontDig = function() {
+                shovelInfo.style.display = 'none';
+            }
+
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        function update(dt) {
+            resize();
+            camera.updateProjectionMatrix();
+            controls.update(dt);
+        }
+
+    </script>
     <script>
         var contEng = document.getElementById("contEng");
         contEng.onclick = function() {
