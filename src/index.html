@@ -66,6 +66,9 @@
                 content: '✓';
                 outline-offset: 0;
             }
+            textarea:focus, input:focus{
+                outline: none;
+            }
             .formH1 {
                 display: inline-block;
                 position: absolute;
@@ -903,10 +906,7 @@
             container = document.getElementById("3Dscene");
             container.appendChild(element);
 
-            // scene = new THREE.Scene();
-
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
-            // scene.add(camera);
 
             controls = new THREE.OrbitControls(camera, element);
             controls.rotateUp(Math.PI / 4);
