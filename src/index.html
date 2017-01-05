@@ -379,20 +379,53 @@
                     formPageOne.style.display = 'block';
                     formPageOne.style.width = String(window.innerWidth) + 'px';
                     formPageOne.style.height = String(window.innerHeight) + 'px';
+                    controls.enabled = false;
+                }
+
+                var skyInfo = document.createElement('div');
+                var skyIcon = document.createElement('img');
+                skyIcon.src = 'textures/pointer.gif';
+                skyIcon.onclick = function() {showMessage("The hot sun burns down on you<br><br>If you stay out here you'll die of thirst", 'השמש החמה יוקדת על אתה<br><br> . . אם אתה נשאר כאן תוכל למות בצמא', skyInfo, (function() {setTimeout(hideSelf, 3000, skyInfo)}))
+                };
+                skyInfo.appendChild(skyIcon);
+
+                var skyBox = new THREE.CSS3DObject(skyInfo);
+                skyBox.position.set(0,  312, 0);
+                skyBox.rotation.set(Math.PI / 2, 0, Math.PI);
+                scene.add(skyBox);
+
+                var fenceInfo = document.createElement('div');
+                var fenceIcon = document.createElement('img');
+                fenceIcon.src = 'textures/pointer.gif';
+                fenceIcon.onclick = function() {showMessage("The fence is too high to climb.", 'הגדר היא גבוהה מדי לטפס.', fenceInfo, (function() {setTimeout(hideSelf, 3000, fenceInfo)}))
+                };
+                fenceInfo.appendChild(fenceIcon);
+
+                var fenceBox = new THREE.CSS3DObject(fenceInfo);
+                fenceBox.position.set(312, 170, 200);
+                var xRotationFence = toRadians(-215);
+                var yRotationFence = toRadians(135);
+                var zRotationFence = toRadians(-180);
+                fenceBox.rotation.set(0, -Math.PI / 2, 0);
+                scene.add(fenceBox);
+
+                var hideSelf = function(elementToHide) {
+                    elementToHide.style.display = 'none';
                 }
 
                 var shovelInfo = document.createElement('div');
                 var shovelIcon = document.createElement('img');
                 shovelIcon.src = 'textures/pointer.gif';
-                shovelIcon.onclick = function() {showMessage('You have found a shovel<br> . . would you like to dig?', 'מצאת את חפירה<br> . . אתה רוצה לחפור?', shovelInfo, shovelChoice)};
+                shovelIcon.onclick = function() {
+                    showMessage('You have found a shovel<br> . . would you like to dig?', 'מצאת את חפירה<br> . . אתה רוצה לחפור?', shovelInfo, shovelChoice)};
                 shovelInfo.appendChild(shovelIcon);
 
                 var shovelBox = new THREE.CSS3DObject(shovelInfo);
                 shovelBox.position.set(-200, -312, -200);
-                var xRotation = toRadians(-215);
-                var yRotation = toRadians(135);
-                var zRotation = toRadians(-135);
-                shovelBox.rotation.set(xRotation, yRotation, zRotation);
+                var xRotationShov = toRadians(-215);
+                var yRotationShov = toRadians(135);
+                var zRotationShov = toRadians(-135);
+                shovelBox.rotation.set(xRotationShov, yRotationShov, zRotationShov);
                 scene.add(shovelBox);
 
                 var yesButton = document.createElement('button');
