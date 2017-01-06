@@ -51,10 +51,12 @@
             input[type=text] {
                 width: 95%;
                 border: 1px solid #59a4e2;
+                -webkit-border-radius:0px;
             }
             input[type=checkbox] {
                 border: 1px solid #59a4e2;
                 -webkit-appearance: none;
+                -webkit-border-radius:0px;
                 background: #ffffff;
                 width: 15px;
                 height: 15px;
@@ -113,6 +115,8 @@
                 left: 0;
                 right: 0;
                 bottom: 0;
+/*                transform-style: preserve-3d;
+                overflow: hidden;*/
             }
             #formPageOneEng, #formPageOneHeb {
                 display: none;
@@ -190,13 +194,14 @@
                 color: #0e2c70;
                 border: 1px solid #0e2c70;
                 font-size: 12pt;
-                padding-top: 5px;
-                padding-bottom: 5px;
+                padding-top: 7px;
+                padding-bottom: 7px;
                 position: absolute;
             }
             .proceedButton {
                 padding-top: 2px;
                 padding-bottom: 2px;
+                font-size: 12pt;
                 position: absolute;
                 right: 30px;
                 bottom: 10px;
@@ -946,22 +951,22 @@
                 {
                     url: 'textures/cube/Wall/3posx.jpg',
                     position: [ -512, 0, 0 ],
-                    rotation: [ 0, Math.PI / 2, 0 ]
+                    rotation: [ 0, 1.57, 0 ]
                 },
                 {
                     url: 'textures/cube/Wall/3negx.jpg',
                     position: [ 512, 0, 0 ],
-                    rotation: [ 0, -Math.PI / 2, 0 ]
+                    rotation: [ 0, -1.57, 0 ]
                 },
                 {
                     url: 'textures/cube/Wall/3posy.jpg',
                     position: [ 0,  512, 0 ],
-                    rotation: [ Math.PI / 2, 0, Math.PI ]
+                    rotation: [ 1.57, 0, Math.PI ]
                 },
                 {
                     url: 'textures/cube/Wall/2negy.jpg',
                     position: [ 0, -512, 0 ],
-                    rotation: [ - Math.PI / 2, 0, Math.PI ]
+                    rotation: [ -1.57, 0, Math.PI ]
                 },
                 {
                     url: 'textures/cube/Wall/4negz.jpg',
@@ -988,7 +993,7 @@
             }
 
             var languageSelectionMenu = document.createElement('div');
-            languageSelectionMenu.style.width = '250px';
+            languageSelectionMenu.style.width = '270px';
             languageSelectionMenu.style.backgroundColor = 'rgba(234, 223, 223, 0.7)';
 
             var languageHeading = document.createElement('div');
@@ -1029,7 +1034,7 @@
             languageBody.appendChild(proceedButton);
 
             var languageSelectionBox = new THREE.CSS3DObject(languageSelectionMenu);
-            languageSelectionBox.position.set(0, 0, 512);
+            languageSelectionBox.position.set(0, 0, 400);
             languageSelectionBox.rotation.set(0, Math.PI, 0);
             scene.add(languageSelectionBox);
 
@@ -1065,7 +1070,7 @@
 
             var skyBox = new THREE.CSS3DObject(skyInfo);
             skyBox.position.set(0,  312, 0);
-            skyBox.rotation.set(Math.PI / 2, 0, Math.PI);
+            skyBox.rotation.set(1.57, 0, Math.PI);
             scene.add(skyBox);
 
             var fenceInfo = document.createElement('div');
@@ -1080,7 +1085,7 @@
             var xRotationFence = toRadians(-215);
             var yRotationFence = toRadians(135);
             var zRotationFence = toRadians(-180);
-            fenceBox.rotation.set(0, -Math.PI / 2, 0);
+            fenceBox.rotation.set(0, 1.57, 0);
             scene.add(fenceBox);
 
             var hideSelf = function(elementToHide) {
@@ -1095,7 +1100,7 @@
             shovelInfo.appendChild(shovelIcon);
 
             var shovelBox = new THREE.CSS3DObject(shovelInfo);
-            shovelBox.position.set(-200, -312, -200);
+            shovelBox.position.set(-200, -212, -200);
             var xRotationShov = toRadians(-215);
             var yRotationShov = toRadians(135);
             var zRotationShov = toRadians(-135);
