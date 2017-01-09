@@ -17,3 +17,6 @@ unwrapped*
 shovelscreenshot.jpg
 src/.fuse*
 ok.html
+Screenshot*
+*.png
+*Screenshot.jpg
